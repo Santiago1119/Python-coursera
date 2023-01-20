@@ -123,11 +123,16 @@ def duracion_promedio_peliculas(p1: dict, p2: dict, p3: dict, p4: dict, p5: dict
     Retorna:
         str: la duracion promedio de las peliculas en formato 'HH:MM'
     """
-    promedio = p1['duracion'] +  p2['duracion'] + p3['duracion'] + p4['duracion'] + p5['duracion'] / 5
-    
+    promedio = (p1['duracion'] +  p2['duracion'] + p3['duracion'] + p4['duracion'] + p5['duracion']) / 5
     horas, minutos = divmod(promedio, 60)
     
-    return f"La duracion promedio de las peliculas en horas y minutos es igual a {horas}:{minutos}"
+    if horas <= 9:
+        horas = int(horas)
+        horas = str(horas)
+        horas = '0' + horas
+        
+    
+    return f"La duracion promedio de las peliculas en horas y minutos es igual a {horas}:{int(minutos)}"
 
 def encontrar_estrenos(p1: dict, p2: dict, p3: dict, p4: dict, p5: dict, anio: int) -> str:
     """Busca entre las peliculas cuales tienen como anio de estreno una fecha estrictamente
@@ -147,19 +152,19 @@ def encontrar_estrenos(p1: dict, p2: dict, p3: dict, p4: dict, p5: dict, anio: i
     mensaje_retorno = ''
     
     if p1['anio'] > anio:
-        mensaje_retorno = p1['nombre']
+        mensaje_retorno = p1['nombre'] + ','
     
     if p2['anio'] > anio:
-        mensaje_retorno += ',' + p2['nombre'] 
+        mensaje_retorno += p2['nombre'] + ',' 
         
     if p3['anio'] > anio:
-        mensaje_retorno += ',' + p3['nombre']
+        mensaje_retorno += p3['nombre'] + ','
         
     if p4['anio'] > anio:
-        mensaje_retorno += ',' + p4['nombre']
+        mensaje_retorno += p4['nombre'] + ',' 
         
     if p5['anio'] > anio:
-        mensaje_retorno += ',' + p5['nombre']
+        mensaje_retorno += p5['nombre'] + ',' 
         
     if mensaje_retorno == '':
         mensaje_retorno = 'Ninguna'
@@ -196,6 +201,35 @@ def cuantas_peliculas_18_mas(p1: dict, p2: dict, p3: dict, p4: dict, p5: dict) -
 
     return peliculas_mas_18
 
+def revisar_horas_peliculas(peli:dict, nueva_hora: int, nuevo_dia: str, p_revisar: dict)->bool:
+    
+    valor_retorno = False
+    hpv, mpv = divmod(p_revisar['duracion'], 60)
+    if mpv == 0:
+        mpv = '00'
+        
+    fhm_peliv = int(str(hpv) + str(mpv))
+    tpv = p_revisar['hora'] + fhm_peliv
+    
+    
+    hpn, mpn = divmod(peli['duracion'], 60)
+    if mpn == 0:
+        mpn = '00' 
+        
+    fhm_pelin = int(str(hpn) + str(mpn))
+    tpn = nueva_hora + fhm_pelin
+    
+    if (nueva_hora < p_revisar['hora'] and tpn < p_revisar['hora']) and (nuevo_dia == p_revisar['dia'] or nuevo_dia != p_revisar['dia']):
+        valor_retorno = True
+    
+    if (nueva_hora > tpv) and (nuevo_dia == p_revisar['dia'] or nuevo_dia != p_revisar['dia']):
+        valor_retorno = True
+        
+    return valor_retorno
+    
+    
+    
+
 def reagendar_pelicula(peli:dict, nueva_hora: int, nuevo_dia: str, 
                        control_horario: bool, p1: dict, p2: dict, p3: dict, p4: dict, p5: dict)->bool: 
     """Verifica si es posible reagendar la pelicula que entra por parametro. Para esto verifica
@@ -218,124 +252,26 @@ def reagendar_pelicula(peli:dict, nueva_hora: int, nuevo_dia: str,
     """
     valor_retorno = False
     
-    ''' 
-    Respetando lo que se ha visto en el curso repeti el proceso por cada pelicula para validar si la nueva hora
-    interfiere con alguna hora o dia de las demas peliculas, ya que aclaro con un ciclo se pudo haber reducido 
-    una cantidad de código importante
-    '''
-    
-    #PELICULA 1
-    horas_peli1, minutos_peli1 = divmod(p1['duracion'], 60)
-    
-    if minutos_peli1 == 0:
-        minutos_peli1 = '00'
-        
-    formato_horas_minutos_peli1 = str(horas_peli1) + str(minutos_peli1)
-    formato_horas_minutos_peli1 = int(formato_horas_minutos_peli1)
-    termino_pelicula1 = p1['hora'] + formato_horas_minutos_peli1
-
-    if termino_pelicula1 > 2359:
-        termino_pelicula1 -= 2400
-       
-    if termino_pelicula1 < 99:
-        termino_pelicula1 = str(termino_pelicula1)
-        termino_pelicula1 = '0' + termino_pelicula1
-        
-    if (str(nueva_hora) < str(termino_pelicula1) or str(nueva_hora) > str(p1['hora'])) and nuevo_dia == p1['dia']:
+    if revisar_horas_peliculas(peli, nueva_hora, nuevo_dia, p1) == False:
         valor_retorno = False
-        
-    #PELICULA 2
-    
-    horas_peli2, minutos_peli2 = divmod(p2['duracion'], 60)
-    
-    if minutos_peli2 == 0:
-        minutos_peli2 = '00'
-        
-    formato_horas_minutos_peli2 = str(horas_peli2) + str(minutos_peli2)
-    formato_horas_minutos_peli2 = int(formato_horas_minutos_peli2)
-    termino_pelicula2 = p2['hora'] + formato_horas_minutos_peli2
-
-    if termino_pelicula2 > 2359:
-        termino_pelicula2 -= 2400
-       
-    if termino_pelicula2 < 99:
-        termino_pelicula2 = str(termino_pelicula2)
-        termino_pelicula2 = '0' + termino_pelicula2
-        
-    if (str(nueva_hora) < str(termino_pelicula2) or str(nueva_hora) > str(p2['hora'])) and nuevo_dia == p2['dia']:
+    elif revisar_horas_peliculas(peli, nueva_hora, nuevo_dia, p2) == False:
         valor_retorno = False
-        
-    #PELICULA 3
-    
-    horas_peli3, minutos_peli3 = divmod(p3['duracion'], 60)
-    
-    if minutos_peli3 == 0:
-        minutos_peli3 = '00'
-        
-    formato_horas_minutos_peli3 = str(horas_peli3) + str(minutos_peli3)
-    formato_horas_minutos_peli3 = int(formato_horas_minutos_peli3)
-    termino_pelicula3 = p3['hora'] + formato_horas_minutos_peli3
-
-    if termino_pelicula3 > 2359:
-        termino_pelicula3 -= 2400
-       
-    if termino_pelicula3 < 99:
-        termino_pelicula3 = str(termino_pelicula3)
-        termino_pelicula3 = '0' + termino_pelicula3
-        
-    if (str(nueva_hora) < str(termino_pelicula3) or str(nueva_hora) > str(p3['hora'])) and nuevo_dia == p3['dia']:
+    elif revisar_horas_peliculas(peli, nueva_hora, nuevo_dia, p3) == False:
         valor_retorno = False
-        
-    #PELICULA 4
-    
-    horas_peli4, minutos_peli4 = divmod(p4['duracion'], 60)
-    
-    if minutos_peli4 == 0:
-        minutos_peli4 = '00'
-        
-    formato_horas_minutos_peli4 = str(horas_peli4) + str(minutos_peli4)
-    formato_horas_minutos_peli4 = int(formato_horas_minutos_peli4)
-    termino_pelicula4 = p4['hora'] + formato_horas_minutos_peli4
-
-    if termino_pelicula4 > 2359:
-        termino_pelicula4 -= 2400
-       
-    if termino_pelicula4 < 99:
-        termino_pelicula4 = str(termino_pelicula4)
-        termino_pelicula4 = '0' + termino_pelicula4
-        
-    if (str(nueva_hora) < str(termino_pelicula4) or str(nueva_hora) > str(p4['hora'])) and nuevo_dia == p4['dia']:
+    elif revisar_horas_peliculas(peli, nueva_hora, nuevo_dia, p4) == False:
         valor_retorno = False
-    
-    #PELICULA 5
-    
-    horas_peli5, minutos_peli5 = divmod(p5['duracion'], 60)
-    
-    if minutos_peli5 == 0:
-        minutos_peli5 = '00'
-        
-    formato_horas_minutos_peli5 = str(horas_peli5) + str(minutos_peli5)
-    formato_horas_minutos_peli5 = int(formato_horas_minutos_peli5)
-    termino_pelicula5 = p5['hora'] + formato_horas_minutos_peli5
-
-    if termino_pelicula5 > 2359:
-        termino_pelicula5 -= 2400
-       
-    if termino_pelicula5 < 99:
-        termino_pelicula5 = str(termino_pelicula5)
-        termino_pelicula5 = '0' + termino_pelicula5
-        
-    if (str(nueva_hora) < str(termino_pelicula5) or str(nueva_hora) > str(p5['hora'])) and nuevo_dia == p5['dia']:
+    elif revisar_horas_peliculas(peli, nueva_hora, nuevo_dia, p5) == False:
         valor_retorno = False
-    
+
+
     #CONTROL HORARIO
     
     if control_horario == True:
-        if peli['genero'] != 'Documental' and (peli['hora'] < 2200):
+        if peli['genero'] == 'Documental' and (peli['hora'] < 2200):
             valor_retorno = True
-        if peli['dia'] != 'Viernes' and (peli['genero'] == 'Drama'):
+        if (peli['genero'] == 'Drama') and (peli['dia'] != 'Viernes'):
             valor_retorno = True
-        if (peli['hora'] < 2300 or peli['hora'] > 600) and (peli['dia'] == 'Sábado' or peli['dia'] == 'Domingo'):
+        if (peli['hora'] < 2300 or peli['hora'] > 600) and (peli['dia'] != 'Sábado' or peli['dia'] != 'Domingo'):
             valor_retorno = True
         
     return valor_retorno    
@@ -359,26 +295,25 @@ def decidir_invitar(peli: dict, edad_invitado: int, autorizacion_padres: bool)->
     
     restriccion_edad = peli['clasificacion']
     
-    
     if edad_invitado >= 18:
         invitacion = True
     
-    if edad_invitado < 15 and peli['genero'] != 'Terror':
+    if edad_invitado > 15 and peli['genero'] == 'Terror':
         invitacion = True
     
     if edad_invitado < 10 and peli['genero'] == 'Familiar':
         invitacion = True
         
-    if restriccion_edad == '18+' and edad_invitado < 18 and autorizacion_padres == True:
+    if (restriccion_edad == '18+' and edad_invitado < 18) and autorizacion_padres == True:
         invitacion = True
         
-    if restriccion_edad == '16+' and edad_invitado < 16 and autorizacion_padres == True:
+    if (restriccion_edad == '16+' and edad_invitado < 16) and autorizacion_padres == True:
         invitacion = True
         
-    if restriccion_edad == '13+' and edad_invitado < 13 and autorizacion_padres == True:
+    if (restriccion_edad == '13+' and edad_invitado < 13) and autorizacion_padres == True:
         invitacion = True
         
-    if restriccion_edad == '7+' and edad_invitado < 7 and autorizacion_padres == True:
+    if (restriccion_edad == '7+' and edad_invitado < 7) and autorizacion_padres == True:
         invitacion = True
         
     if peli['genero'] == 'Documental':
