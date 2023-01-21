@@ -262,7 +262,8 @@ def reagendar_pelicula(peli:dict, nueva_hora: int, nuevo_dia: str,
         valor_retorno = False
     elif revisar_horas_peliculas(peli, nueva_hora, nuevo_dia, p5) == False:
         valor_retorno = False
-
+    else:
+        valor_retorno = True
 
     #CONTROL HORARIO
     

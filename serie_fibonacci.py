@@ -1,20 +1,26 @@
 # -*- coding: utf-8 -*-
 
 
-def sucesion_fibonacci(n):
-    a, b = 0, 1
-    while a < n:
-        print(a, end=',')
-        a, b = b, a+b
-    print()
+def sucesion_fibonacci(cantidad_numeros:int)->str:
 
-sucesion_fibonacci(18)
+    lista = []
+    numero_uno = 0
+    numero_dos = 1
 
+    if cantidad_numeros > 1:
+        lista.append(str(numero_uno))
+        lista.append(str(numero_dos))
 
+        while len(lista) < cantidad_numeros:
+            numero_tres = numero_uno + numero_dos
+            lista.append(str(numero_tres))
+            numero_uno = numero_dos
+            numero_dos = numero_tres
+            
+        cadena = ",".join(lista)
+    elif cantidad_numeros > 0:
+        lista.append(str(numero_uno))
+        cadena = ",".join(lista)
 
+    return cadena
 
-lista=[]
-for i in range(2000, 3201):
-    if (i%7==0):    	 	
-        lista.append(str(i))
-print (','.join(lista))
