@@ -293,27 +293,41 @@ def artistas_y_sus_canciones(lista_canciones:list)->dict:
     return diccionario_retorno
             
 
-def promedio_canciones_por_artista(canciones:list)->float:
+def promedio_canciones_por_artista(lista_canciones:list)->float:
+    """
+    Genera el promedio de canciones que tienen los artistas en la lista
 
+    Parameters
+    ----------
+    lista_canciones : list
+        lista con las canciones.
+
+    Returns
+    -------
+    float
+        Promedio de canciones que tiene cada artista.
+
+    """
     
+    numero_canciones = 0
     
+    diccionario_auxiliar = {}
     
-    k = 0
-    
-    resultado_pre = {}
-    
-    for cancion in canciones:
-        if cancion["nombre_artista"] in resultado_pre:
-            if cancion["nombre_cancion"] not in resultado_pre[cancion["nombre_artista"]]:
-                resultado_pre[cancion["nombre_artista"]] = resultado_pre[cancion["nombre_artista"]] + [cancion["nombre_cancion"]]
-                k = k + 1
+    for cancion in lista_canciones:
+        nombre_artista = cancion["nombre_artista"]
+        nombre_cancion = cancion["nombre_cancion"]
+        
+        if nombre_artista in diccionario_auxiliar:
+            if nombre_cancion not in diccionario_auxiliar[nombre_artista]:
+                diccionario_auxiliar[nombre_artista].append(nombre_cancion)
+                numero_canciones += 1
         else:
-            resultado_pre[cancion["nombre_artista"]] = [cancion["nombre_cancion"]]
-            k = k + 1
+            diccionario_auxiliar[nombre_artista] = [nombre_cancion]
+            numero_canciones += 1
+            
     
-    j = list(resultado_pre.keys()) 
-    
-    promedio = k/len(j)    
+    numero_artistas = len(diccionario_auxiliar)
+    promedio = numero_canciones/numero_artistas
 
     
     return promedio
